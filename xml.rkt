@@ -1,0 +1,26 @@
+#lang racket
+(provide Xml)
+(require "match.rkt")
+;<xml> ::= <string>
+;       |  (<symbol> (<attr>+) <xml>*)
+;       |  (<symbol> <xml>*)
+;<attr> ::= (<symbol> <string>)
+(define (Attr* attr*)
+  (for-each
+   (lambda (attr)
+     (printf " ~s=~s" (car attr) (cadr attr)))
+   attr*))
+(define (Xml xml)
+  (match xml
+    (,str (guard (string? str)) (printf "~a" str))
+    ((,sym ,attr* . ,xml*)
+     (guard (pair? attr*) (pair? (car attr*)))
+     (printf "<~s" sym)
+     (Attr* attr*)
+     (printf ">")
+     (for-each Xml xml*)
+     (printf "</~s>" sym))
+    ((,sym . ,xml*)
+     (printf "<~s>" sym)
+     (for-each Xml xml*)
+     (printf "</~s>" sym))))
